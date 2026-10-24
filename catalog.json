@@ -1,0 +1,46 @@
+{
+  "catalog_version": 1,
+  "updated": "2026-10-24",
+  "packages": [
+    {
+      "id": "qemu-11.1.2-arm64-v8a",
+      "version": "11.1.2",
+      "series": "11",
+      "display_name": "QEMU 11.1.2",
+      "description": "Latest 11.x emulator core, best compatibility for modern guests.",
+      "published": false,
+      "url": "https://github.com/xis3794/limbo-qemu/releases/download/qemu-11.1.2/qemu-11.1.2-arm64-v8a.tar.xz",
+      "sha256": ""
+    },
+    {
+      "id": "qemu-10.2.0-arm64-v8a",
+      "version": "10.2.0",
+      "series": "10",
+      "display_name": "QEMU 10.2.0",
+      "description": "QEMU 10.x series for guests that need an older machine model.",
+      "published": false,
+      "url": "https://github.com/xis3794/limbo-qemu/releases/download/qemu-10.2.0/qemu-10.2.0-arm64-v8a.tar.xz",
+      "sha256": ""
+    },
+    {
+      "id": "qemu-8.0.5-arm64-v8a",
+      "version": "8.0.5",
+      "series": "8",
+      "display_name": "QEMU 8.0.5",
+      "description": "QEMU 8.x series, the long-time stable choice for Windows 7/XP guests.",
+      "published": false,
+      "url": "https://github.com/xis3794/limbo-qemu/releases/download/qemu-8.0.5/qemu-8.0.5-arm64-v8a.tar.xz",
+      "sha256": ""
+    },
+    {
+      "id": "qemu-5.1.0-arm64-v8a",
+      "version": "5.1.0",
+      "series": "5",
+      "display_name": "QEMU 5.1.0",
+      "description": "QEMU 5.x series for legacy operating systems.",
+      "published": false,
+      "url": "https://github.com/xis3794/limbo-qemu/releases/download/qemu-5.1.0/qemu-5.1.0-arm64-v8a.tar.xz",
+      "sha256": ""
+    }
+  ]
+}
