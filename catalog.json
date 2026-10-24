@@ -3,6 +3,17 @@
   "updated": "2026-10-24",
   "packages": [
     {
+      "id": "qemu-11.1.0-arm64-v8a",
+      "version": "11.1.0",
+      "series": "11",
+      "display_name": "QEMU 11.1.0",
+      "description": "QEMU 11.1.0 x86_64 for arm64 devices (same core as the bundled build; use it to test the installer).",
+      "published": true,
+      "url": "https://github.com/xis3794/limbo-qemu/releases/download/qemu-11.1.0/qemu-11.1.0-arm64-v8a.tar.xz",
+      "sha256": "dfb5e9f17e13f4671a3737d047e8d82d6aa0e996ac90cbc7b7a34f06a78cb890",
+      "size": 3746496
+    },
+    {
       "id": "qemu-11.1.2-arm64-v8a",
       "version": "11.1.2",
       "series": "11",
