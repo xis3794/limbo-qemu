@@ -1,0 +1,230 @@
+name: Build QEMU version packages
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/qemu-packages.yml'
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  build:
+    name: QEMU ${{ matrix.version }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - version: '11.1.2'
+            series: '11'
+          - version: '10.2.0'
+            series: '10'
+          - version: '8.0.5'
+            series: '8'
+          - version: '5.1.0'
+            series: '5'
+    env:
+      QEMU_VER: ${{ matrix.version }}
+      BUILD_HOST: arm64-v8a
+      BUILD_GUEST: x86_64-softmmu
+      SRC: ${{ github.workspace }}/limbo-src
+
+    steps:
+      - name: Checkout Limbo build system
+        uses: actions/checkout@v4
+        with:
+          repository: xis3794/limbo
+          path: limbo-src
+
+      - name: Install build tools
+        run: |
+          for t in make gcc g++ git python3 pkg-config flex bison gettext texinfo \
+                   rsync unzip zip wget curl autoconf automake libtool; do
+            command -v $t >/dev/null 2>&1 || echo "MISSING: $t"
+          done
+          command -v meson || pip3 install --quiet --retries 5 meson ninja
+          command -v ninja || pip3 install --quiet --retries 5 ninja
+          meson --version; ninja --version
+          # patchelf 0.18 for soname/DT_NEEDED normalisation
+          curl -sL --retry 5 --retry-delay 3 -o /tmp/patchelf018.tgz \
+            https://github.com/NixOS/patchelf/releases/download/0.18.0/patchelf-0.18.0-x86_64.tar.gz
+          mkdir -p /tmp/p018
+          tar xzf /tmp/patchelf018.tgz -C /tmp/p018 --strip-components=1 --no-same-owner --no-overwrite-dir
+          sudo cp /tmp/p018/bin/patchelf /usr/local/bin/
+          patchelf --version
+
+      - name: Set up NDK r23b
+        run: |
+          wget -q --timeout=60 --tries=5 --retry-connrefused --waitretry=5 \
+            https://dl.google.com/android/repository/android-ndk-r23b-linux.zip
+          unzip -q android-ndk-r23b-linux.zip
+          echo "NDK_ROOT=$GITHUB_WORKSPACE/android-ndk-r23b" >> $GITHUB_ENV
+
+      - name: Download QEMU and dependency sources
+        working-directory: ${{ env.SRC }}/limbo-android-lib/src/main/jni
+        run: |
+          wget -q --timeout=60 --tries=5 --retry-connrefused --waitretry=5 https://download.qemu.org/qemu-$QEMU_VER.tar.xz
+          tar xf qemu-$QEMU_VER.tar.xz && mv qemu-$QEMU_VER qemu && rm qemu-$QEMU_VER.tar.xz
+          wget -q --timeout=60 --tries=5 --retry-connrefused --waitretry=5 https://download.gnome.org/sources/glib/2.56/glib-2.56.1.tar.xz
+          tar xf glib-2.56.1.tar.xz && mv glib-2.56.1 glib && rm glib-2.56.1.tar.xz
+          wget -q --timeout=60 --tries=5 --retry-connrefused --waitretry=5 https://github.com/libffi/libffi/releases/download/v3.3/libffi-3.3.tar.gz
+          tar xzf libffi-3.3.tar.gz && mv libffi-3.3 libffi && rm libffi-3.3.tar.gz
+          wget -q --timeout=60 --tries=5 --retry-connrefused --waitretry=5 https://www.cairographics.org/releases/pixman-0.40.0.tar.gz
+          tar xzf pixman-0.40.0.tar.gz && mv pixman-0.40.0 pixman && rm pixman-0.40.0.tar.gz
+          wget -q https://www.libsdl.org/release/SDL2-2.0.8.tar.gz
+          tar xzf SDL2-2.0.8.tar.gz && mv SDL2-2.0.8 SDL2 && rm SDL2-2.0.8.tar.gz
+          case "$QEMU_VER" in
+            10.*|11.*)
+              wget -q https://download.gnome.org/sources/glib/2.76/glib-2.76.6.tar.xz
+              tar xf glib-2.76.6.tar.xz && mv glib-2.76.6 glib276 && rm glib-2.76.6.tar.xz
+              cp "$GITHUB_WORKSPACE/limbo-src/tools/libslirp-4.7.0.tar.gz" .
+              tar xzf libslirp-4.7.0.tar.gz && mv libslirp-v4.7.0 libslirp && rm libslirp-4.7.0.tar.gz
+              wget -q --tries=5 --retry-connrefused --waitretry=5 https://gitlab.com/qemu-project/dtc/-/archive/v1.7.0/dtc-v1.7.0.tar.gz
+              tar xzf dtc-v1.7.0.tar.gz && mv dtc-v1.7.0 qemu/dtc && rm dtc-v1.7.0.tar.gz
+              ;;
+            8.0.5)
+              wget -q https://gitlab.com/qemu-project/dtc/-/archive/v1.7.0/dtc-v1.7.0.tar.gz
+              tar xzf dtc-v1.7.0.tar.gz && mv dtc-v1.7.0 qemu/dtc && rm dtc-v1.7.0.tar.gz
+              cp "$GITHUB_WORKSPACE/limbo-src/tools/libslirp-4.7.0.tar.gz" .
+              tar xzf libslirp-4.7.0.tar.gz && mv libslirp-v4.7.0 libslirp && rm libslirp-4.7.0.tar.gz
+              ;;
+          esac
+
+      - name: Apply Limbo/Android patches
+        working-directory: ${{ env.SRC }}/limbo-android-lib/src/main/jni
+        run: |
+          case "$QEMU_VER" in
+            10.*|11.*)
+              echo "=== QEMU $QEMU_VER: meson adaptation (fix_qemu11 pipeline) ==="
+              python3 "$GITHUB_WORKSPACE/limbo-src/scripts/fix_qemu11.py" "$PWD"
+              ;;
+            8.0.5)
+              echo "=== QEMU 8.0.5: meson adaptation ==="
+              python3 "$GITHUB_WORKSPACE/limbo-src/scripts/fix_qemu805.py" "$PWD"
+              ;;
+            5.1.0)
+              cd qemu && patch -p1 < ../patches/qemu-$QEMU_VER.patch && cd ..
+              sed -i 's/^#ifdef CONFIG_MALLOC_TRIM/#if 0 \/* CONFIG_MALLOC_TRIM *\//' qemu/util/rcu.c
+              ;;
+          esac
+          cd glib && patch -p1 < ../patches/glib-2.56.1.patch && cd ..
+          cd SDL2 && patch -p1 < ../patches/sdl2-2.0.8.patch && cd ..
+
+      - name: Build QEMU and native libraries (make limbo)
+        working-directory: ${{ env.SRC }}/limbo-android-lib/src/main/jni
+        run: |
+          export NDK_ROOT="$NDK_ROOT"
+          export BUILD_HOST="$BUILD_HOST"
+          export BUILD_GUEST="$BUILD_GUEST"
+          export USE_QEMU_VERSION="$QEMU_VER"
+          if [ "$QEMU_VER" = "8.0.5" ]; then
+            export PKG_CONFIG_PATH="$PWD/pc"
+          fi
+          rm -rf "$PWD/../obj/local"
+          make limbo
+          ls -la ../libs/arm64-v8a/ | head -40
+
+      - name: Package QEMU version (tar.xz + manifest.json)
+        id: package
+        run: |
+          mkdir -p dist
+          OUT="dist/qemu-${QEMU_VER}-arm64-v8a.tar.xz"
+          python3 "$GITHUB_WORKSPACE/limbo-src/tools/package_qemu.py" \
+            "$GITHUB_WORKSPACE/limbo-src/limbo-android-lib/src/main/libs/arm64-v8a" \
+            "$QEMU_VER" "$OUT" --series "${{ matrix.series }}" --patchelf patchelf \
+            | tee "dist/package-$QEMU_VER.json"
+          ls -la dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qemu-package-${{ matrix.version }}
+          path: dist/*
+          if-no-files-found: error
+
+  publish:
+    name: Publish releases + catalog
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout limbo-qemu
+        uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: qemu-package-*
+          merge-multiple: true
+          path: dist
+
+      - name: Publish GitHub releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          ls -la dist
+          for f in dist/qemu-*.tar.xz; do
+            [ -e "$f" ] || continue
+            base=$(basename "$f")
+            ver=$(echo "$base" | sed -E 's/^qemu-(.*)-arm64-v8a\.tar\.xz$/\1/')
+            echo "Publishing QEMU $ver ($base)"
+            if gh release view "qemu-$ver" >/dev/null 2>&1; then
+              gh release upload "qemu-$ver" "$f" --clobber
+            else
+              gh release create "qemu-$ver" "$f" \
+                --title "QEMU $ver (arm64-v8a)" \
+                --notes "QEMU $ver x86_64 softmmu build for Limbo (arm64-v8a). Packaged for the in-app version manager: extract to see manifest.json + lib/*.so."
+            fi
+          done
+
+      - name: Update catalog.json
+        run: |
+          python3 - <<'PY'
+          import glob, hashlib, json, os, re
+          catalog_path = "catalog.json"
+          catalog = json.load(open(catalog_path))
+          by_id = {p["id"]: p for p in catalog["packages"]}
+          for f in sorted(glob.glob("dist/qemu-*.tar.xz")):
+              base = os.path.basename(f)
+              m = re.match(r"^qemu-(.+)-arm64-v8a\.tar\.xz$", base)
+              if not m:
+                  continue
+              ver = m.group(1)
+              pkg_id = "qemu-%s-arm64-v8a" % ver
+              data = open(f, "rb").read()
+              sha = hashlib.sha256(data).hexdigest()
+              entry = by_id.get(pkg_id)
+              if entry is None:
+                  entry = {"id": pkg_id, "version": ver, "series": ver.split(".")[0],
+                           "display_name": "QEMU %s" % ver,
+                           "description": "QEMU %s x86_64 for arm64 devices" % ver}
+                  catalog["packages"].append(entry)
+                  by_id[pkg_id] = entry
+              entry.update({
+                  "published": True,
+                  "url": "https://github.com/xis3794/limbo-qemu/releases/download/qemu-%s/%s" % (ver, base),
+                  "sha256": sha,
+                  "size": len(data),
+              })
+          import datetime
+          catalog["updated"] = datetime.date.today().isoformat()
+          with open(catalog_path, "w") as out:
+              json.dump(catalog, out, indent=2)
+              out.write("\n")
+          print(json.dumps([{k: p.get(k) for k in ("id", "published", "size", "sha256")} for p in catalog["packages"]], indent=2))
+          PY
+
+      - name: Commit catalog
+        run: |
+          git config user.name "limbo-bot"
+          git config user.email "limbo-bot@users.noreply.github.com"
+          git add catalog.json
+          if git diff --cached --quiet; then
+            echo "catalog unchanged"
+          else
+            git commit -m "catalog: publish QEMU version packages"
+            git push
+          fi
