@@ -52,8 +52,9 @@ jobs:
           meson --version; ninja --version
           # glib 2.56 (QEMU 5.1/8.0.5) runs autogen.sh which needs gtkdocize
           sudo apt-get update -qq
-          sudo apt-get install -y -qq gtk-doc-tools
+          sudo apt-get install -y -qq gtk-doc-tools gettext libtool-bin
           command -v gtkdocize && echo "gtkdocize OK"
+          command -v msgfmt && echo "msgfmt OK"
           # patchelf 0.18 for soname/DT_NEEDED normalisation
           curl -sL --retry 5 --retry-delay 3 -o /tmp/patchelf018.tgz \
             https://github.com/NixOS/patchelf/releases/download/0.18.0/patchelf-0.18.0-x86_64.tar.gz
