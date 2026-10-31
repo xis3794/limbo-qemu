@@ -21,8 +21,8 @@
       "description": "Latest 11.x emulator core, best compatibility for modern guests.",
       "published": true,
       "url": "https://github.com/xis3794/limbo-qemu/releases/download/qemu-11.1.2/qemu-11.1.2-arm64-v8a.tar.xz",
-      "sha256": "58aa311ee96548e17a4345113cc6416ca7f73b68989a06178e6533c40c57b239",
-      "size": 3753504
+      "sha256": "8af7aa75eefca137cb09974b2ee5197941aa050977feff7f359562aaa9031ea6",
+      "size": 3755784
     },
     {
       "id": "qemu-10.2.0-arm64-v8a",
@@ -32,8 +32,8 @@
       "description": "QEMU 10.x series for guests that need an older machine model.",
       "published": true,
       "url": "https://github.com/xis3794/limbo-qemu/releases/download/qemu-10.2.0/qemu-10.2.0-arm64-v8a.tar.xz",
-      "sha256": "5aa7ff98b5a77e3c9276ba648439a77f811c964934dd9eb3c67a67fc797fe06d",
-      "size": 3684576
+      "sha256": "e6225b6369c22bbaffdbd8152b1d3be7d67a6414af2aba049909d9891dab5a5c",
+      "size": 3706084
     },
     {
       "id": "qemu-8.0.5-arm64-v8a",
@@ -43,8 +43,8 @@
       "description": "QEMU 8.x series, the long-time stable choice for Windows 7/XP guests.",
       "published": true,
       "url": "https://github.com/xis3794/limbo-qemu/releases/download/qemu-8.0.5/qemu-8.0.5-arm64-v8a.tar.xz",
-      "sha256": "831442953c4921408a0d57d4d3c3773f2dc32cd63de9cc8b95ef66a24aafc8e7",
-      "size": 3271736
+      "sha256": "b0a0fcec7ffcec9bcbd6b7876c27dcd648f8b17c65902b9aa6cd49091aef2170",
+      "size": 3267584
     },
     {
       "id": "qemu-5.1.0-arm64-v8a",
@@ -54,8 +54,8 @@
       "description": "QEMU 5.x series for legacy operating systems.",
       "published": true,
       "url": "https://github.com/xis3794/limbo-qemu/releases/download/qemu-5.1.0/qemu-5.1.0-arm64-v8a.tar.xz",
-      "sha256": "5a90b896aa4670d131283e4d80a4717fa19363ecf8376ec13f7127d639911332",
-      "size": 2882928
+      "sha256": "b4a63c9a0e918239c818451aa0e9e6dd132761f43c5e8b255b872dd2efea082c",
+      "size": 2885700
     }
   ]
 }
