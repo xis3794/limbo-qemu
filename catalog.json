@@ -1,6 +1,6 @@
 {
   "catalog_version": 1,
-  "updated": "2026-10-25",
+  "updated": "2026-10-31",
   "packages": [
     {
       "id": "qemu-11.1.0-arm64-v8a",
@@ -21,8 +21,8 @@
       "description": "Latest 11.x emulator core, best compatibility for modern guests.",
       "published": true,
       "url": "https://github.com/xis3794/limbo-qemu/releases/download/qemu-11.1.2/qemu-11.1.2-arm64-v8a.tar.xz",
-      "sha256": "6fcaa06a7d2900ce9a099e26cc522d45d7e34f87514b37978f0921e7aee9e54d",
-      "size": 3747784
+      "sha256": "58aa311ee96548e17a4345113cc6416ca7f73b68989a06178e6533c40c57b239",
+      "size": 3753504
     },
     {
       "id": "qemu-10.2.0-arm64-v8a",
@@ -32,8 +32,8 @@
       "description": "QEMU 10.x series for guests that need an older machine model.",
       "published": true,
       "url": "https://github.com/xis3794/limbo-qemu/releases/download/qemu-10.2.0/qemu-10.2.0-arm64-v8a.tar.xz",
-      "sha256": "e784a632e5687e6549736b7d304510eb9f9708ca5b88331f1afb9a2d5c2f18b6",
-      "size": 3683100
+      "sha256": "5aa7ff98b5a77e3c9276ba648439a77f811c964934dd9eb3c67a67fc797fe06d",
+      "size": 3684576
     },
     {
       "id": "qemu-8.0.5-arm64-v8a",
@@ -43,8 +43,8 @@
       "description": "QEMU 8.x series, the long-time stable choice for Windows 7/XP guests.",
       "published": true,
       "url": "https://github.com/xis3794/limbo-qemu/releases/download/qemu-8.0.5/qemu-8.0.5-arm64-v8a.tar.xz",
-      "sha256": "666e8f3417bfd9e6ed1dd7cb8c994510743ee53248502a9d732d45586e270aed",
-      "size": 3269272
+      "sha256": "831442953c4921408a0d57d4d3c3773f2dc32cd63de9cc8b95ef66a24aafc8e7",
+      "size": 3271736
     },
     {
       "id": "qemu-5.1.0-arm64-v8a",
@@ -54,8 +54,8 @@
       "description": "QEMU 5.x series for legacy operating systems.",
       "published": true,
       "url": "https://github.com/xis3794/limbo-qemu/releases/download/qemu-5.1.0/qemu-5.1.0-arm64-v8a.tar.xz",
-      "sha256": "61ad1cadc8b47a8d1a7d9243e4af311753d9c7ae8c5e85b622eaf652af9f4502",
-      "size": 2886564
+      "sha256": "5a90b896aa4670d131283e4d80a4717fa19363ecf8376ec13f7127d639911332",
+      "size": 2882928
     }
   ]
 }
